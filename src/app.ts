@@ -1,13 +1,9 @@
 import Elysia from "elysia";
+import { featureRoutes } from "./features";
 import { AuthPlugin } from "./plugins/auth.plugin";
 
 const app = new Elysia()
   .use(AuthPlugin)
-  .get("/user", ({ user }) => user, {
-    auth: true,
-  })
-  .get("/admin", ({ user }) => user, {
-    adminOnly: true,
-  })
+  .use(featureRoutes)
 
 export default app;

@@ -1,41 +1,23 @@
 import { Elysia } from "elysia";
-import { auth } from "../lib/auth";
+import { auth } from "@/lib/auth";
+import { UnauthorizedError } from "@/utils/errors";
 
 const betterAuth = new Elysia({ name: "better-auth" })
   .mount(auth.handler)
   .macro({
-    auth: {
-      async resolve({ status, request: { headers } }) {
-        const session = await auth.api.getSession({
-          headers,
-        });
-
-        if (!session) return status(401);
-
+    userRole: (role: 'user' | 'admin') => ({
+      async resolve({ request: { headers } }) {
+        const session = await auth.api.getSession({ headers });
+        if (!session) throw new UnauthorizedError("Unauthorized");
+        
+        if (session.user.role !== role) throw new UnauthorizedError(`${role} role required`);
+        
         return {
-          user: session.user,
-          session: session.session,
+            user: session.user,
+            session: session.session,
         };
-      },
-    },
-    adminOnly: {
-      async resolve({ status, request: { headers } }) {
-        const session = await auth.api.getSession({
-          headers,
-        });
-
-        if (!session) return status(401);
-
-       if (session.user.role !== "admin") {
-					return status(403, { error: `admin role required` });
-				}
-
-        return {
-          user: session.user,
-          session: session.session,
-        };
-      },
-    },
-  });
+      }
+    })
+})
 
 export const AuthPlugin = betterAuth;

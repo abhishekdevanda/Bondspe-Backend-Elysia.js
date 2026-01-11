@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
-import * as schema from "../db/schema";
-import { admin } from "better-auth/plugins";
-import { APP_BASE_URL as baseURL } from "../utils/constants/app.constants";
+import * as schema from "@/db/schema";
+import { admin, openAPI } from "better-auth/plugins";
+import { APP_BASE_URL as baseURL } from "@/utils/constants/app.constants";
 
 export const auth = betterAuth({
     baseURL,
@@ -24,7 +24,8 @@ export const auth = betterAuth({
     plugins: [
         admin({
             defaultRole: "user",
-            adminRoles: ["admin"],    
-        })
+            adminRoles: ["admin"],
+        }),
+        openAPI(),
     ]
 });

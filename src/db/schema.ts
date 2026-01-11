@@ -1,5 +1,5 @@
-import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { pgTable, text, timestamp, boolean, index, jsonb, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -96,3 +96,49 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const blogStatusEnum = pgEnum("blog_status", [
+  "draft",
+  "published",
+]);
+
+export const blogs = pgTable(
+  "blog",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    content: jsonb("content").notNull(),
+    authorId: text("author_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    featuredImage: jsonb("featured_image")
+      .$type<{ url: string; alt?: string }>()
+      .notNull(),
+    tags: jsonb("tags")
+      .$type<string[]>()
+      .default([]),
+    seo: jsonb("seo")
+      .$type<{
+        metaTitle?: string;
+        metaDescription?: string;
+        slug?: string;
+        faqSchema?: string;
+        articleSchema?: string;
+      }>(),
+    faq: jsonb("faq")
+      .$type<{ question: string; answer: string }[]>()
+      .default([]),
+    definitions: jsonb("definitions")
+      .$type<{ term: string; description: string }[]>()
+      .default([]),
+    status: blogStatusEnum("status").default("draft"),
+    isFeatured: boolean("is_featured").default(false),
+    isDeleted: boolean("is_deleted").default(false),
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [uniqueIndex("blog_seo_slug_unique").on(sql`(${table.seo}->>'slug')`)]
+);
