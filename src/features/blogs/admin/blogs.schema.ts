@@ -1,5 +1,10 @@
 import { t } from "elysia";
 
+export const getAllBlogsSchema = t.Object({
+    page: t.Optional(t.Numeric()),
+    limit: t.Optional(t.Numeric())
+});
+
 export const createBlogSchema = t.Object({
     title: t.String(),
     content: t.Union([
@@ -53,7 +58,6 @@ export const updateBlogSchema = t.Object({
     })),
     status: t.Optional(t.Union([t.Literal("draft"), t.Literal("published")])),
     isFeatured: t.Optional(t.Boolean()),
-    isDeleted: t.Optional(t.Boolean())
 }, {
     minProperties: 1
 });
