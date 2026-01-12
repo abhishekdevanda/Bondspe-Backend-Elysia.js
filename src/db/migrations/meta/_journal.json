@@ -15,6 +15,13 @@
       "when": 1768059506566,
       "tag": "0001_amazing_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768211076486,
+      "tag": "0002_closed_sersi",
+      "breakpoints": true
     }
   ]
 }
