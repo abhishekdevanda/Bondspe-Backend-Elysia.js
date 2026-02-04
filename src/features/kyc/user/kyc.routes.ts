@@ -5,11 +5,11 @@ import { createKyc, getKyc, updateKyc } from "./kyc.handler";
 
 export const userKycRoutes = new Elysia({ prefix: "/user/kyc" })
     .use(AuthPlugin)
-    .post("/", ({ body, user }) => createKyc(body, user.id), {
-        body: createKycSchema,
+    .get("/", ({ user }) => getKyc(user.id), {
         userRole: "user"
     })
-    .get("/", ({ user }) => getKyc(user.id), {
+    .post("/", ({ body, user }) => createKyc(body, user.id), {
+        body: createKycSchema,
         userRole: "user"
     })
     .patch("/", ({ body, user }) => updateKyc(body, user.id), {

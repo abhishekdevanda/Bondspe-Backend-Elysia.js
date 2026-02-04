@@ -171,6 +171,29 @@ export const kyc = pgTable("kyc", {
     uniqueIndex("kyc_pan_number_unique").on(sql`(${table.panCard}->>'panNumber')`),
   ]);
 
+export const issuerTypeEnum = pgEnum("issuer_type", [
+  "corporate",
+  "government",
+]);
+
+export const issuers = pgTable("issuers", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  type: issuerTypeEnum("type").notNull(),
+  logoUrl: text("logo_url").notNull(),
+  description: text("description"),
+  slug: text("slug").notNull().unique(),
+  registrationNumber: text("registration_number"),
+  website: text("website"),
+  isActive: boolean("is_active").default(true),
+  isDeleted: boolean("is_deleted").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => new Date())
+    .notNull(),
+}, (table) => [uniqueIndex("issuer_slug_idx").on(table.slug)]);
+
 // Relations
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
@@ -208,3 +231,7 @@ export const kycRelations = relations(kyc, ({ one }) => ({
     relationName: "kyc_updated_by",
   }),
 }));
+
+// export const issuerRelations = relations(issuers, ({ many }) => ({
+//   bonds: many(bonds),
+// }));
